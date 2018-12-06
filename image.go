@@ -37,6 +37,7 @@ func (l *imageList)GetObject() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	l.List = data.([]string)
 	return l.List, nil
 }

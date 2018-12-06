@@ -21,6 +21,7 @@ func DockerRegistryApiV2Repository(c Client, req *artifactoryRequest) ([]string,
 func DockerRegistryApiV2CheckHeaderLink(c Client, host, prefix, repository, params string) ([]string, error) {
 	baseUrl := host + prefix + repository
 	catalog := baseUrl + "/" + params
+
 	_, resp, err := c.RawGet(catalog)
 	if resp == nil || err != nil {
 		return nil, err
@@ -88,7 +89,6 @@ func DockerRegistryApiV2ProcessRegexp(link string) string  {
 func DockerRegistryApiV2Tags(c Client, req *artifactoryRequest, image string)([]string, error)  {
 	baseUrl := req.host + req.prefix + req.repository
 	url := baseUrl + "/" + API_VERSION + "/" + image + req.params
-
 	_, resp, err := c.RawGet(url)
 	if resp == nil || err != nil {
 		return nil, nil

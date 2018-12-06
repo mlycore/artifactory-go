@@ -1,10 +1,10 @@
 package artifactory
 
 import (
+	"fmt"
 	"encoding/json"
 	"strings"
 	"net/http"
-	"fmt"
 )
 
 type properties struct {
@@ -15,15 +15,9 @@ type properties struct {
 
 func (p *properties)queryImagesByProperties(req *artifactoryRequest, tagsdata interface{})(int, string, error)  {
 	path := req.protocol + req.host + req.prefix + req.params
-	tags := tagsdata.(map[string][]string)
-	for k, vlist := range tags {
-		var i int
-		var params string
-		for i=0; i<len(vlist)-1; i++ {
-			params += vlist[i] + ","
-		}
-		params += vlist[i]
-		path += k + "=" + params + "&"
+	tags := tagsdata.(map[string]string)
+	for k, v := range tags {
+		path += k + "=" + v + "&"
 	}
 	path = strings.TrimSuffix(path, "&")
 	code, data, err := p.c.Get(path)
@@ -38,16 +32,9 @@ func (p *properties)queryPropertiesByImage(req *artifactoryRequest, tagsdata int
 
 func (p *properties)addProperty(req *artifactoryRequest, tagsdata interface{}) (int, string, error) {
 	path := req.protocol + req.host + req.prefix + req.repository + "/" + req.image + "/" + req.tag + req.params
-	tags := tagsdata.(map[string][]string)
-	for k, vlist := range tags {
-		// path += k + "=" + v + ";"
-		var params string
-		var i int
-		for i=0; i<len(vlist) - 1; i++ {
-			params += vlist[i] + ","
-		}
-		params += vlist[i]
-		path += k + "=" + params + ";"
+	tags := tagsdata.(map[string]string)
+	for k, v := range tags{
+		path += k + "=" + v + ";"
 	}
 	code, data, err := p.c.Put(path, nil)
 	return code, data, err
@@ -63,14 +50,18 @@ func (p *properties)deleteProperty(req *artifactoryRequest, tagsdata interface{}
 	return code, data, err
 }
 
-func (p *properties) Add(tags map[string][]string) *properties {
-	p.data = tags
+func (p *properties) Add(tags map[string]string) *properties {
+	for k, v := range tags {
+		p.data.(map[string]string)[k] = v
+	}
 	p.setAdd()
 	return p
 }
 
 func (p *properties) Update(tags map[string]string) *properties {
-	p.data = tags
+	for k, v := range tags {
+		p.data.(map[string]string)[k] = v
+	}
 	p.setUpdate()
 	return p
 }
@@ -148,8 +139,10 @@ func (p *properties)GetObject() (interface{}, error) {
 	return obj, nil
 }
 
-func (p *properties)QueryImages(tags map[string][]string) *properties {
-	p.data = tags
+func (p *properties)QueryImages(tags map[string]string) *properties {
+	for k, v := range tags {
+		p.data.(map[string]string)[k] = v
+	}
 	p.setQueryImagesByProperties()
 	return p
 }

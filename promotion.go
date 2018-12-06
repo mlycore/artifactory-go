@@ -3,7 +3,6 @@ package artifactory
 import (
 	"net/http"
 	"encoding/json"
-	"fmt"
 )
 
 type promotion struct{
@@ -53,8 +52,6 @@ func (p *promotion)promote(req *artifactoryRequest, data interface{}) (int, stri
 	path := req.host + req.prefix + req.repository + "/" + API_VERSION + "/" + req.params
 	params := data.(*ArtifactoryPromote)
 	postdata, err := json.Marshal(params)
-	fmt.Printf("path: %s\n", path)
-	fmt.Printf("body: %s\n", postdata)
 	if err != nil {
 		return http.StatusInternalServerError, "", err
 	}
